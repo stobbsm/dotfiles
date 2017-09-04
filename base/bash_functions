@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# define colours to use
+nocolour='\[\e[0m\]'
+
+# background colours
+bgred='41m'
+bggreen='42m'
+bgyellow='43m'
+bgblue='44m'
+bgviolet='45m'
+bgteal='46m'
+bgblack='40m'
+bgwhite='47m'
+
+# foreground colours
+fgred='31'
+fggreen='32'
+fgyellow='33'
+fgblue='34'
+fgviolet='35'
+fgteal='36'
+fgblack='30'
+fgwhite='37'
+
+# style
+bold='1'
+italic='3'
+normal='0'
+underline='4'
+blink='5'
+dim='2'
+inverted='7'
+hidden='8'
+
+function updatepath {
+	for p in ${PATHS[@]}; do
+		if ! echo $PATH | egrep -q "(^|:)$p($|:)"; then
+			if [ -e $p ]; then
+				PATH=$p:$PATH
+			fi
+		fi
+	done
+}
+
+function __prompt_command() {
+	local EXIT="$?"
+	PS1=""
+
+	# username
+	PS1+="\[\e[$bold;${fgblue}m\]\u$nocolour\[\e[${bold}m\]@"
+
+	# hostname
+	PS1+="\[\e[$bold;${fgviolet}m\]\H$nocolour"
+	
+	# path
+	PS1+="\[\e[$underline;${fgviolet}m\][$(__split_pwd)]$nocolour"
+	
+	# git branch
+	PS1+="\[\e[$dim;${fgyellow};${bgwhite}\]$(__git_branch)$nocolour"
+	
+	# date and time
+	PS1+="\[\e[${bold};${bgyellow}\]\d \t$nocolour"
+
+	# line break
+	PS1+="$nocolour\n"
+
+	if [ $EXIT != 0 ]; then
+		PS1+="\[\e[$bold;$fgred;$bgwhite\]$EXIT"
+	fi
+	PS1+="$nocolour> "
+}
+
+function __git_branch() {
+	git branch 2>/dev/null |grep \*| sed -e 's/* \(.*\)/(\1)/'
+}
+
+function __split_pwd() {
+	if [ $(pwd | grep -o '/' | wc -l) -gt 3 ]; then
+		pwd | cut -d'/' -f1-3 | xargs -I{} echo {}"/../${PWD##*/}"
+	else
+		pwd
+	fi
+}
+
+function check_command() {
+	local cmd=$1
+	command -v $cmd >/dev/null 2>&1
+	command_status=$?
+}

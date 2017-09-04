@@ -1,0 +1,53 @@
+#
+# ~/.bashrc
+#
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+# Source global bashrc if it exists
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+if [ -n "$DESKTOP_SESSION" ]; then
+	eval $(gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
+fi
+
+# Set ENV
+export GOPATH="$HOME/go"
+export SSH_AUTH_SOCK
+export EDITOR=vim
+export VISUAL=$EDITOR
+export BORG_REPO="c3po.stobbslocal.net:/storage/Backup/$(hostname).stobbslocal.net"
+
+# Set path
+PATHS=( "$HOME/.config/composer/vendor/bin"
+	"$HOME/bin"
+	"$HOME/.local/bin"
+	"$GOPATH/bin"
+)
+
+# Include alias and functions
+[[ -f ~/.bash_functions ]] && . ~/.bash_functions
+[[ -f ~/.bash_alias ]] && . ~/.bash_alias
+[[ -f ~/.bash_colours ]] && . ~/.bash_colours
+
+updatepath
+export PATH
+
+# Search for powerline, import it if available
+
+check_command "powerline"
+
+if [ "0" -eq "$command_status" ]; then
+	source /usr/lib/python3.6/site-packages/powerline/bindings/bash/powerline.sh
+else
+	# Set a nice prompt when powerline isn't available
+	PROMPT_COMMAND=__prompt_command
+fi
+
+check_command "mpc"
+if [ "0" -eq "$command_status" ]; then
+	export MPD_HOST=$HOME/.config/mpd/socket
+fi

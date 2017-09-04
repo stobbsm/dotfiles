@@ -1,0 +1,138 @@
+" Directory for plugins
+call plug#begin('~/.vim/plugged')
+
+" Plugins go here
+if has("nvim")
+	Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+	Plug 'zchee/deoplete-go', { 'build': { 'unix': 'make' } }
+	Plug 'jodosha/vim-godebug'
+endif
+
+if !has("nvim")
+	Plug 'Shougo/neocomplete.vim'
+endif
+
+Plug 'fatih/vim-go'
+Plug 'tmux-plugins/vim-tmux'
+Plug 'vim-scripts/taglist.vim'
+Plug 'vim-scripts/vim-airline'
+Plug 'Shougo/denite.nvim'
+Plug 'tpope/vim-fugitive'
+
+call plug#end()
+
+" quality of life settings
+set number
+set hidden
+set background=dark
+colorscheme sproutingdark
+set directory=$HOME/.cache//
+nmap <Leader>rc :source ~/.config/nvim/init.vim<CR>
+
+" airline settings
+set laststatus=2
+let g:airline_powerline_fonts=1
+let g:airline_theme='molokai'
+
+" Buffer keybinds
+nmap <Leader>bn :bn<CR>
+nmap <Leader>bp :bp<CR>
+nmap <Leader>sbn :sbn<CR>
+nmap <Leader>sbp :sbp<CR>
+nmap <Leader>bl :ls<CR>
+nmap <Leader>gb :ls<CR>:b<Space>
+nmap <Leader>db :ls<CR>:bd<Space>
+nmap <Leader>en :enew<CR>
+
+" Taglist settings
+let Tlist_Compact_Format = 1
+let Tlist_GainFocus_On_ToggleOpen = 1
+let Tlist_Close_On_Select = 1
+let s:tlist_def_go_settings = 'go;g:enum;s:struct;u:union;t:type;v:variable;f:function'
+nnoremap <C-l> :TlistToggle<CR>
+
+" deoplete settings
+set completeopt+=noselect
+let g:deoplete#enable_at_startup = 1
+let g:deoplete#enable_smart_case = 1
+let g:deoplete#enable_camel_case = 1
+
+"deoplete-go settings
+let g:deoplete#sources#go#gocode_binary = $GOPATH.'/bin/gocode'
+let g:deoplete#sources#go#sort_class = [ 'package', 'func', 'type', 'var', 'const' ]
+let g:deoplete#sources#go#pointer = 1
+let g:deoplete#sources#go#use_cache = 1
+let g:deoplete#sources#go#json_directory = '~/.cache/deoplete/go/$GOOS_$GOARCH'
+let g:deoplete#sources#go#auto_goos = 1
+
+" vim-go settings
+let g:go_list_type = "quickfix"
+let g:go_fmt_command = "goimports"
+let g:go_addtags_transform = "camelcase"
+let g:go_highlight_types = 1
+let g:go_highlight_fields = 1
+let g:go_highlight_build_constraints = 1
+let g:go_auto_type_info = 1
+let g:go_auto_sameids = 1
+autocmd FileType go nmap <Leader>i <Plug>(go-info)
+autocmd FileType go nmap <Leader>gd <Plug>(go-doc)
+autocmd FileType go nmap <Leader>r <Plug>(go-run)
+autocmd FileType go nmap <Leader>b <Plug>(go-build)
+autocmd FileType go nmap <Leader>t <Plug>(go-test)
+autocmd FileType go nmap gd <Plug>(go-def-tab)
+map <C-n> :cnext<CR>
+map <C-m> :cprevious<CR>
+nnoremap <Leader>a :cclose<CR>
+
+" netrw settings
+let g:netrw_liststyle = 3
+function! VexToggle(dir)
+	if exists("t:vex_buf_nr")
+		call VexClose()
+	else
+		call VexOpen(a:dir)
+	endif
+endfunction
+
+function! VexOpen(dir)
+	let g:netrw_browse_split=4
+	let vex_width = 25
+
+	execute "Vexplore " . a:dir
+	let t:vex_buf_nr = bufnr("%")
+	wincmd H
+
+	call VexSize(vex_width)
+endfunction
+
+function! VexClose()
+	let cur_win_nr = winnr()
+	let target_nr = ( cur_win_nr == 1 ? winnr("#") : cur_win_nr )
+
+	1wincmd w
+	close
+	unlet t:vex_buf_nr
+
+	execute (target_nr -1) . "wincmd w"
+	call NormalizeWidths()
+endfunction
+
+function! VexSize(vex_width)
+	execute "vertical resize" . a:vex_width
+	set winfixwidth
+	call NormalizeWidths()
+endfunction
+
+function! NormalizeWidths()
+	let eadir_pref = &eadirection
+	set eadirection=hor
+	set equalalways! equalalways!
+	let &eadirection = eadir_pref
+endfunction
+
+noremap <Leader><Tab> :call VexToggle(getcwd())<CR>
+noremap <Leader>` :call VexToggle("")<CR>
+augroup NetrwGroup
+	autocmd! BufEnter * call NormalizeWidths()
+augroup END
+

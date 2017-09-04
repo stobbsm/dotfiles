@@ -1,0 +1,4 @@
+alias ls='ls --color=auto'
+alias reloadrc='source ~/.bashrc'
+alias backup="borg create -v -s -p --exclude-from $HOME/.borg_exclude -C lz4 $BORG_REPO::stobbsm-$(date '+%Y-%M-%d-%H%M%S') $HOME"
+alias vim='nvim'
