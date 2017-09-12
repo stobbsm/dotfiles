@@ -86,18 +86,13 @@ for file in $file_list
 do
 	link=${file_map[$file]}
 	
-	if [ -z "${host_file_map[$file]}" ]
+	if [ -f $host_dir/$file ]
 	then
-		src=$base_dir/$file
+		src=$host_dir/$file
 	else
-		if [ -f $host_dir/$file ]
-		then
-			src=$host_dir/$file
-		else
-			src=$base_dir/$file
-		fi
-		debug "src => $src"
+		src=$base_dir/$file
 	fi
+	debug "src => $src"
 
 	if [ -f $src ]
 	then
