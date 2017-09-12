@@ -10,5 +10,6 @@ composite="compton"
 topbar="polybar -r top"
 botbar="polybar -r bottom"
 wallpaper="variety"
+editor="nvim"
 
-applications="terminal browser filemanager screenlocker polkitauth notifier composite topbar botbar wallpaper email music"
+applications="terminal browser filemanager screenlocker polkitauth notifier composite topbar botbar wallpaper email music editor"

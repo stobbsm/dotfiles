@@ -17,8 +17,8 @@ fi
 # Set ENV
 export GOPATH="$HOME/go"
 export SSH_AUTH_SOCK
-export EDITOR=vim
-export VISUAL=$EDITOR
+export EDITOR={{editor}}
+export VISUAL={{editor}}
 export BORG_REPO="c3po.stobbslocal.net:/storage/Backup/$(hostname).stobbslocal.net"
 
 # Set path
