@@ -1,2 +1,4 @@
-font="Source Code Pro"
-fontsize=10
+polybar_height=22
+wlan_interface="wlp1s0"
+
+settings+=" polybar_height wlan_interface"

@@ -116,8 +116,11 @@ do
 			src=$tmp_dir/$file
 		fi
 		
-		cp $src $tmp_dir/$file
-		src=$tmp_dir/$file
+		if [ "$src" != "$tmp_dir/$file" ]
+		then
+			cp $src $tmp_dir/$file
+			src=$tmp_dir/$file
+		fi
 		debug "src => $src"
 
 		# Run the filter on the source file (which should be in tmp at this point)

@@ -25,7 +25,7 @@ underline = {{light_red}}
 
 [bar/top]
 width = 100%
-height = 22
+height = {{polybar_height}}
 radius = 0.0
 fixed-center = true
 background = ${colors.background}
@@ -52,7 +52,7 @@ scroll-down = i3wm-wsprev
 
 [bar/bottom]
 width = 100%
-height = 22
+height = {{polybar_height}}
 background = ${colors.background}
 feoreground = ${colors.foreground}
 line-size = 4
@@ -276,7 +276,7 @@ label = MEM: %percentage_used%%
 
 [module/wlan]
 type = internal/network
-interface = wlp1s0
+interface = {{wlan_interface}}
 interval = 3.0
 
 format-connected = <ramp-signal> <label-connected>

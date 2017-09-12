@@ -38,7 +38,7 @@ bindsym $mod+Shift+w exec {{browser}}
 bindsym $mod+Shift+f exec {{filemanager}}
 # start dmenu (a program launcher)
 # first define command line options
-set $dmenu_cmd_opts -fn '{{font}}-16' -l 10 -p '> ' -nb '{{background}}' -nf '{{foreground}}' -sb '{{light_background}}' -sf '{{dark_foreground}}'
+set $dmenu_cmd_opts -fn '{{font}}-{{fontsize}}' -l 10 -p '> ' -nb '{{background}}' -nf '{{foreground}}' -sb '{{light_background}}' -sf '{{dark_foreground}}'
 bindsym $mod+d exec dmenu_run $dmenu_cmd_opts
 bindsym $mod+p exec passmenu $dmenu_cmd_opts
 bindsym $mod+Shift+d exec i3-dmenu-desktop --dmenu="dmenu -i $dmenu_cmd_opts"
@@ -150,7 +150,7 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 # Exit menu
-set $Locker {{screenlocker}} -f {{font_dashed}} -p -t "Enter your password or be destroyed"
+set $Locker {{screenlocker}} -f {{font_dashed}} -t "Enter your password or be destroyed"
 
 set $mode_system System (l) lock, (e) logout, (s) suspend, (r) reboot, (Shift+s) shutdown
 mode "$mode_system" {
@@ -176,7 +176,7 @@ assign [class="Firefox"] $WS2
 assign [class="Thunderbird"] $WS3
 assign [class="Steam"] $WS4
 assign [class="cantata"] $WS5
-assign [class="Thunar"] $WS6
+assign [class="Nautilus"] $WS6
 
 # Polkit authentication
 exec --no-startup-id {{polkitauth}}
@@ -186,7 +186,7 @@ exec --no-startup-id {{notifier}}
 exec --no-startup-id {{topbar}}
 exec --no-startup-id {{botbar}}
 exec --no-startup-id {{composite}}
-exec --no-startup-id {{wallpaper}
+exec --no-startup-id {{wallpaper}}
 
 ## Autostart in seperate workspace
 exec --no-startup-id i3-msg "exec {{terminal}};"
