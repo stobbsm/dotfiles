@@ -1,0 +1,34 @@
+background="#272822"
+dark_background="#3b3c33"
+light_background="#777a68"
+foreground="#f1ebeb"
+dark_foreground="#ebeef1"
+light_foreground="#797678"
+cursor=$foreground
+
+# Colours are devided in light and dark
+dark_black="#48483e"
+light_black="#76715e"
+
+dark_red="#dc2566"
+light_red="#fa2772"
+
+dark_green="#8fc029"
+light_green="#a7e22e"
+
+dark_yellow="#d4c96e"
+light_yellow="#e7db75"
+
+dark_blue="#55bcce"
+light_blue="#66d9ee"
+
+dark_magenta="#9358fe"
+light_magenta="#ae82ff"
+
+dark_cyan="#56b7a5"
+light_cyan="#66efd5"
+
+dark_white="#acada1"
+light_white="#cfd0c2"
+
+colours="$(echo {dark,light}_{background,foreground,black,red,green,yellow,blue,magenta,cyan,white}) foreground background cursor"

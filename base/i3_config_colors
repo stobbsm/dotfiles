@@ -1,9 +1,10 @@
+
 # Colours to be used
 # class			border	backgr	text	indic	child_border
-client.focused		#48483e #272822	#f1ebeb	#dc2566	#76715e
+client.focused		{{dark_black}} {{background}}	{{foreground}} {{dark_red}} {{light_black}}
 #client.focused_inactive
-client.unfocused	#76715e	#f1ebeb	#272822	#fa2772	#48483e
-client.urgent		#dc2566	#48483e	#acada1	#dc2566	#fa2772
+client.unfocused	{{light_black}} {{foreground}} {{background}} {{light_red}} {{dark_black}}
+client.urgent		{{dark_red}} {{dark_black}} {{dark_white}} {{dark_red}} {{light_red}}
 #client.placeholder
-client.background	#272822
+client.background	{{background}}
 

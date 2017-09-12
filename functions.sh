@@ -25,3 +25,10 @@ function hash_compare () {
 	local file2=$2
 	[[ `get_hash $file1` = `get_hash $file2` ]] && echo 0 || echo 1
 }
+
+function debug() {
+	if [ ! -z "$DEBUG" ]
+	then
+		echo "[Debug message: $@]" >&2
+	fi
+}

@@ -1,0 +1,9 @@
+font="Source Code Pro"
+font_condensed="SourceCodePro"
+font_dashed="Source-Code-Pro"
+font_icons="Font Awesome"
+font_icons_condensed="FontAwesome"
+fontsize=10
+cursortheme="Breeze_Snow"
+
+settings="font font_dashed font_condensed font_icons font_icons_condensed fontsize cursortheme"
