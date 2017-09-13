@@ -45,30 +45,36 @@ function updatepath {
 
 function __prompt_command() {
 	local EXIT="$?"
-	PS1=""
+	check_command "powerline-go"
+	if [ "0" -eq "$command_status" ]
+	then
+		PS1="$(~/go/bin/powerline-go -error $?)"
+	else
+		PS1=""
 
-	# username
-	PS1+="\[\e[$bold;${fgblue}m\]\u$nocolour\[\e[${bold}m\]@"
+		# username
+		PS1+="\[\e[$bold;${fgblue}m\]\u$nocolour\[\e[${bold}m\]@"
 
-	# hostname
-	PS1+="\[\e[$bold;${fgviolet}m\]\H$nocolour"
-	
-	# path
-	PS1+="\[\e[$underline;${fgviolet}m\][$(__split_pwd)]$nocolour"
-	
-	# git branch
-	PS1+="\[\e[$dim;${fgyellow};${bgwhite}\]$(__git_branch)$nocolour"
-	
-	# date and time
-	PS1+="\[\e[${bold};${bgyellow}\]\d \t$nocolour"
+		# hostname
+		PS1+="\[\e[$bold;${fgviolet}m\]\H$nocolour"
+		
+		# path
+		PS1+="\[\e[$underline;${fgviolet}m\][$(__split_pwd)]$nocolour"
+		
+		# git branch
+		PS1+="\[\e[$dim;${fgyellow};${bgwhite}\]$(__git_branch)$nocolour"
+		
+		# date and time
+		PS1+="\[\e[${bold};${bgyellow}\]\d \t$nocolour"
 
-	# line break
-	PS1+="$nocolour\n"
+		# line break
+		PS1+="$nocolour\n"
 
-	if [ $EXIT != 0 ]; then
-		PS1+="\[\e[$bold;$fgred;$bgwhite\]$EXIT"
+		if [ $EXIT != 0 ]; then
+			PS1+="\[\e[$bold;$fgred;$bgwhite\]$EXIT"
+		fi
+		PS1+="$nocolour> "
 	fi
-	PS1+="$nocolour> "
 }
 
 function __git_branch() {
