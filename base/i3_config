@@ -150,7 +150,7 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 # Exit menu
-set $Locker {{screenlocker}} -f {{font_dashed}} -t "Enter your password or be destroyed"
+set $Locker {{screenlocker}} -c {{background}} -f
 
 set $mode_system System (l) lock, (e) logout, (s) suspend, (r) reboot, (Shift+s) shutdown
 mode "$mode_system" {
