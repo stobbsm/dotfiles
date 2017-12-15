@@ -156,6 +156,28 @@ done
 
 echo -e "Modified $changed_files files"
 
+echo -e "Checking for vim Plugged plugin manager..."
+
+plugged_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+vim_plug_path="$HOME/.vim/autoload/plug.vim"
+nvim_plug_path="$HOME/.local/share/nvim/site/autoload/plug.vim"
+
+if [ ! -f $vim_plug_path ]
+then
+	echo -e "Installing for vim..."
+	curl -fLo $vim_plug_path --create-dirs $plugged_url
+else
+	echo -e "Installed for vim"
+fi
+
+if [ ! -f $nvim_plug_path ]
+then
+	echo -e "Installing for nvim..."
+	curl -fLo $nvim_plug_path --create-dirs $plugged_url
+else
+	echo -e "Installed for nvim"
+fi
+
 echo -e "Cleaning up..."
 rm -rf $tmp_dir
 debug "Removed $tmp_dir"
