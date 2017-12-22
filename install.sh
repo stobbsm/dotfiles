@@ -180,3 +180,4 @@ fi
 echo -e "Cleaning up..."
 rm -rf $tmp_dir
 debug "Removed $tmp_dir"
+echo -e "If your .bashrc was updated, run source ~/.bashrc to enable the new one."
