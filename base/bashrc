@@ -14,24 +14,11 @@ if [ -n "$DESKTOP_SESSION" ]; then
 	eval $(gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
 fi
 
-# Set ENV
-export GOPATH="$HOME/go"
-export SSH_AUTH_SOCK
-export EDITOR={{editor}}
-export VISUAL={{editor}}
-export BORG_REPO="c3po.stobbslocal.net:/storage/Backup/$(hostname).stobbslocal.net"
-
-# Set path
-PATHS=( "$HOME/.config/composer/vendor/bin"
-	"$HOME/bin"
-	"$HOME/.local/bin"
-	"$GOPATH/bin"
-)
-
 # Include alias and functions
 [[ -f ~/.bash_functions ]] && . ~/.bash_functions
 [[ -f ~/.bash_alias ]] && . ~/.bash_alias
 [[ -f ~/.bash_colours ]] && . ~/.bash_colours
+[[ -f ~/.bash_config ]] && . ~/.bash_config
 
 updatepath
 export PATH
