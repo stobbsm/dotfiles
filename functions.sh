@@ -16,7 +16,12 @@ function parse_cmd () {
 
 function get_hash () {
 	local file=$1
-	local hash="$(sha256sum $file | awk '{print $1}')"
+	if [ ! -f $file ]
+	then
+		local hash=0
+	else
+		local hash="$(sha256sum $file | awk '{print $1}')"
+	fi
 	echo $hash
 }
 

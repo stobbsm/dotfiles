@@ -137,7 +137,8 @@ do
 				precmd=$(parse_cmd "${pre_commands[$file]}" "$link" "$file")
 				eval $(echo $precmd) >/dev/null 2>&1
 			fi
-				
+
+			echo -e "Installing $link"				
 			install -D $src $link
 
 			# Run post commands if they exist
@@ -146,8 +147,6 @@ do
 				postcmd=$(parse_cmd "${post_commands[$file]}" "$link" "$basedir/$file")
 				eval $(echo $postcmd) >/dev/null 2>&1
 			fi
-		else
-			echo -e "File hasn't changed, not copying."
 		fi
 	else
 		echo -e "Source file doesn't exist: $src"

@@ -1,0 +1,17 @@
+# Use C^a as action key
+set -g prefix C-a
+unbind C-b
+bind C-a send-prefix
+
+# Force 256 colour mode
+set -g default-terminal "tmux-256color"
+
+# Reload config with R (captial r)
+unbind R
+bind R source-file ~/.tmux.conf
+
+# Set more sane pane ceation buttons
+unbind '"'
+unbind %
+bind e split-window -h
+bind o split-window -v
