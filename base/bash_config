@@ -6,12 +6,23 @@ export EDITOR={{editor}}
 export VISUAL={{editor}}
 export BORG_REPO="c3po.stobbslocal.net:/storage/Backup/$(hostname).stobbslocal.net"
 
-# Paths
 PATHS=( "$HOME/.config/composer/vendor/bin"
 	"$HOME/bin"
 	"$HOME/.local/bin"
 	"$GOPATH/bin"
 )
 
-# Applications to run on login
-START_TMUX=1
+BORG_EXCLUDE="$HOME/.borg_exclude"
+DATE_FORMAT="%Y-%m-%d-%H%M%S"
+
+# Set the passcommand for borg to cat a file, if it exists
+BORG_PASSFILE="$HOME/.borg_pass"
+
+# Set how long borg should keep backups
+declare -A BORG_KEEP=(
+	[HOURLY]=1
+	[WEEKLY]=1
+	[DAILY]=1
+	[MONTHLY]=1
+	[YEARLY]=1
+)

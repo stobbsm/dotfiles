@@ -94,3 +94,35 @@ function check_command() {
 	command -v $cmd >/dev/null 2>&1
 	command_status=$?
 }
+
+function backup() {
+	local archive="$BORG_REPO::$(whoami)-$(date +$DATE_FORMAT)"
+	local prune_opts="-v --list"
+	declare -A flags=(
+		[HOURLY]="-H"
+		[WEEKLY]="-w"
+		[DAILY]="-d"
+		[MONTHLY]="-m"
+		[YEARLY]="-y"
+	)
+	if [ -f $BORG_PASSFILE ]
+	then
+		export BORG_PASSCOMMAND="cat $BORG_PASSFILE"
+	elif [ ! -z $DESKTOP_SESSION ]
+	then
+		export BORG_PASSCOMMAND="zenity --title='Borg Password' --password"
+	fi
+
+	for opt in ${!BORG_KEEP[@]}
+	do
+		prune_opts="${flags[$opt]} ${BORG_KEEP[$opt]} $prune_opts"
+	done
+
+	# Do the backup
+	borg create -v -s -p --exclude-from $BORG_EXCLUDE -C lz4 $archive $HOME
+
+	# Cleanup old backups
+	borg prune $prune_opts
+	
+	[[ -z $BORG_PASSCOMMAND ]] || unset BORG_PASSCOMMAND
+}

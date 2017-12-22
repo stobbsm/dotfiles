@@ -135,7 +135,10 @@ do
 			if [ ! -z "${pre_commands[$file]}" ]
 			then
 				precmd=$(parse_cmd "${pre_commands[$file]}" "$link" "$file")
+				debug "Running precmd: $precmd"
 				eval $(echo $precmd) >/dev/null 2>&1
+			else
+				debug "No precmd for $src"
 			fi
 
 			echo -e "Installing $link"				
@@ -145,7 +148,10 @@ do
 			if [ ! -z "${post_commands[$file]}" ]
 			then
 				postcmd=$(parse_cmd "${post_commands[$file]}" "$link" "$basedir/$file")
+				debug "Running postcmd: $postcmd"
 				eval $(echo $postcmd) >/dev/null 2>&1
+			else
+				debug "No postcmd for $src"
 			fi
 		fi
 	else
