@@ -1,0 +1,184 @@
+#!/bin/bash
+
+## Restore keys backed up with backup_keys.sh
+version="1.0"
+function usage {
+	cat <<EOF
+	Restore Keys version $version
+	Usage: $(basename $0) <path to restore from>
+
+	Where <path to restore from> is the same path you gave to backup_keys.sh
+
+	Example: backup_keys.sh /media/backup GPGID
+		 restore_keys.sh /media/backup
+	
+	All files will be restored to: $(pwd)
+
+EOF
+}
+
+usage
+echo -e "WARNING: This script will overwrite your existing directories and files within them. Only run this when you are sure it is the right thing to do."
+read -n1 -p "Continue? (y/n) " yorn
+echo -e ""
+
+if [ "$yorn" != "y" ]
+then
+	echo -e "Exiting without making any changes."
+	exit
+fi
+
+if [ -z $1 ]
+then
+	echo -e "<path to restore from> isn't set. Try again with the path set."
+	exit 1
+fi
+
+backup_base="$1"
+
+if [ ! -d "$backup_base" ]
+then
+	echo -e "$backup_base doesn't exist. Can't restore a backup that doesn't exist."
+	exit 1
+fi
+
+backups_available=$(ls $backup_base)
+
+echo -e "Available backups: "
+for backup in $backups_available
+do
+	if [ -d "$backup_base/$backup" ]
+	then
+		echo -e "$backup"
+	fi
+done
+read -p "Enter the backup you would like to restore: " src
+
+echo -e "Backup source: $backup_base/$src"
+
+[[ -f "$backup_base/$src/.metadata" ]] && source "$backup_base/$src/.metadata"
+
+if [ "$(pwd)" != "$PRIVATE_ROOT" ]
+then
+	echo -e "Current directory is different then the backed up directory of $PRIVATE_ROOT"
+	read -n1 -p "Continue? (y/n) " yorn
+	if [ "$yorn" != "y" ]
+	then
+		echo -e "Aborting."
+		exit 0
+	fi
+fi
+
+gpg_backup="$backup_base/$src/00-gpg.privkey.asc"
+ssh_backup="$backup_base/$src/10-ssh.tar.xz"
+eth_backup="$backup_base/$src/10-eth.tar.xz"
+openvpn_backup="$backup_base/$src/10-openvpn.tar.xz"
+private_backup="$backup_base/$src/20-private.tar.xz"
+
+available=""
+echo -e "Found backups:"
+for cb in $gpg_backup $ssh_backup $eth_backup $openvpn_backup $private_backup
+do
+	if [ -f "$cb" ]
+	then
+		echo -e "$cb"
+		available="$available $cb"
+	fi
+done
+
+function restore() {
+	local filename="$1"
+	local filetype="$(echo $filename|awk -F. '{print $(NF-1)}')"
+	case $filetype in
+		privkey)
+			restore_gpg $filename
+		;;
+
+		tar)
+			restore_tar $filename
+		;;
+
+		*)
+			echo "Unable to restore $filename"
+		;;
+	esac
+}
+
+function restore_gpg() {
+	local filename="$1"
+	echo -e "Importing $filename"
+	gpg --import "$filename"
+}
+
+function restore_tar() {
+	local filename="$1"
+	echo -e "Decrypting and decompressing $filename"
+	gpg -d $filename | tar -xJf -
+}
+
+function get_shasum() {
+	echo $(sha256sum "$1"|awk '{print $1}')
+}
+
+function check_integrity() {
+	local sum=$1
+	local filename=$2
+	if [ "$sum" = "$(get_shasum $filename)" ]
+	then
+		echo "valid"
+	else
+		echo "invalid"
+	fi
+}
+
+echo -e "Checking integrity of files"
+
+if [ "$(check_integrity $gpg_sum $gpg_backup)" = "invalid" ]
+then
+	echo -e "Verification of $gpg_backup failed."
+	exit 2
+fi
+
+if [ "$(check_integrity $ssh_sum $ssh_backup)" = "invalid" ]
+then
+	echo -e "Verification of $ssh_backup failed."
+	exit 2
+fi
+
+if [ "$(check_integrity $openvpn_sum $openvpn_backup)" = "invalid" ]
+then
+	echo -e "Verification of $openvpn_backup failed."
+	exit 2
+fi
+
+if [ "$(check_integrity $eth_sum $eth_backup)" = "invalid" ]
+then
+	echo -e "Verification of $eth_backup failed."
+	exit 2
+fi
+
+if [ "$(check_integrity $private_sum $private_backup)" = "invalid" ]
+then
+	echo -e "Verification of $private_backup failed."
+	exit 2
+fi
+
+if [ "$(check_integrity $backupkeys_sum $backup_base/$src/backup_keys.sh)" = "invalid" ]
+then
+	echo -e "Verification of $backup_base/$src/backup_keys.sh failed."
+	exit 2
+fi
+
+if [ "$(check_integrity $restorekeys_sum $backup_base/$src/restore_keys.sh)" = "invalid" ]
+then
+	echo -e "Verification of $backup_base/$src/restore_keys.sh failed."
+	exit 2
+fi
+
+echo -e "Verified all files"
+
+echo -e "Restoring files"
+for file in $available
+do
+	restore $file
+done

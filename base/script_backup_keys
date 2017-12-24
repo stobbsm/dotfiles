@@ -1,0 +1,198 @@
+#!/bin/bash
+version="1.0"
+## Backup private keys for gpg, ssh, and other configured keystores to a given directory as an ascii armored gpg encrypted file.
+
+function check_file_exists() {
+	yorn=n
+	local filename="$1"
+	if [ -f "$filename" ]
+	then
+		echo -e "$filename already exists"
+		read -n 1 -p "Overwrite? (y/n) " yorn
+		echo -e ""
+	else
+		yorn=y
+	fi
+}
+
+function safe_remove() {
+	local filename="$1"
+	[[ -f "$filename" ]] && rm "$filename"
+}
+
+function usage() {
+	cat <<EOF
+	Usage: $(basename $0) <destination directory> <gpg-id to use>
+
+	Where <destination directory> is the directory to save the backup
+	Where <gpg-id to use> is the gpg id you want to use to encrypt the backup
+EOF
+}
+
+PRIVATE_ROOT="$HOME"
+SSH_DIR=".ssh"
+ETH_DIR=".ethereum"
+OPENVPN_DIR=".openvpn"
+PRIVATE_DIR=".private"
+
+if [ -z $1 ]
+then
+	usage
+	echo "No backup directory given. Aborting."
+	exit 1
+fi
+
+if [ -z $2 ]
+then
+	usage
+	echo "GPG id not provided. Aborting."
+	exit 1
+fi
+
+backup_base="$1"
+GPGID="$2"
+
+if [ "$(pwd)" != "$PRIVATE_ROOT" ]
+then
+	echo -e "Switching to $PRIVATE_ROOT"
+	cd $PRIVATE_ROOT
+fi
+
+if [ ! -d "$backup_base" ]
+then
+	echo "Provided path is not a directory. Aborting."
+	exit 1
+fi
+
+backup_dir="$backup_base/$(whoami)-$(hostname)"
+
+if [ ! -d "$backup_dir" ]
+then
+	echo "Creating $backup_dir"
+	mkdir -p "$backup_dir"
+fi
+
+gpg_backup="$backup_dir/00-gpg.privkey.asc"
+ssh_backup="$backup_dir/10-ssh.tar.xz"
+eth_backup="$backup_dir/10-eth.tar.xz"
+openvpn_backup="$backup_dir/10-openvpn.tar.xz"
+private_backup="$backup_dir/20-private.tar.xz"
+
+# Backup gpg keys
+check_file_exists "$gpg_backup"
+
+if [ "$yorn" = "y" ]
+then
+	safe_remove "$gpg_backup"
+	echo -e "Creating $gpg_backup"
+	gpg --export-secret-keys --armor > "$gpg_backup"
+else
+	echo -e "Not backing up gpg keys"
+fi
+
+# Backup ssh directory
+if [ -d "$SSH_DIR" ]
+then
+	check_file_exists "$ssh_backup"
+	if [ "$yorn" = "y" ]
+	then
+		safe_remove "$ssh_backup"
+		echo -e "Creating $ssh_backup"
+		tar -cJ "$SSH_DIR" | gpg -e -r $GPGID -o "$ssh_backup"
+	else
+		echo -e "Not backing up ssh directory"
+	fi
+else
+	echo -e "No ssh directory to backup"
+fi
+
+# Backup eth keys
+if [ -d "$ETH_DIR" ]
+then
+	check_file_exists "$eth_backup"
+	if [ "$yorn" = "y" ]
+	then
+		safe_remove "$eth_backup"
+		echo -e "Creating $eth_backup"
+		tar -cJ --exclude=geth "$ETH_DIR" | gpg -e -r $GPGID -o "$eth_backup"
+	else
+		echo -e "Not backing up etherem directory"
+	fi
+else
+	echo -e "No ethereum directory to backup"
+fi
+
+# Backup openvpn directory
+if [ -d "$OPENVPN_DIR" ]
+then
+	check_file_exists "$openvpn_backup"
+	if [ "$yorn" = "y" ]
+	then
+		safe_remove "$openvpn_backup"
+		echo -e "Creating $openvpn_backup"
+		tar -cJ "$OPENVPN_DIR" | gpg -e -r $GPGID -o "$openvpn_backup"
+	else
+		echo -e "Not backing up openvpn"
+	fi
+else
+	echo -e "No openvpn directory to backup"
+fi
+
+# Backup private directory
+if [ -d "$PRIVATE_DIR" ]
+then
+	check_file_exists "$private_backup"
+	if [ "$yorn" = "y" ]
+	then
+		safe_remove "$private_backup"
+		echo -e "Creating $private_backup"
+		tar -cJ "$PRIVATE_DIR" | gpg -e -r $GPGID -o "$private_backup"
+	else
+		echo -e "Not backing up private directory"
+	fi
+else
+	echo -e "No private directory to backup"
+fi
+
+# Backup the backup script as well
+script="$0"
+echo -e "Copying backup script to $backup_dir"
+cp -v "$script" "$backup_dir/$(basename $script)"
+
+# Copy the restore script, to make sure it can be restored properly
+restore_script="$HOME/.local/bin/restore_keys.sh"
+echo -e "Copying restore script to $backup_dir"
+cp -v "$restore_script" "$backup_dir/$(basename $restore_script)"
+
+# Write out metadata
+echo date=$(date +%Y%m%d) > "$backup_dir/.metadata"
+echo PRIVATE_ROOT=$PRIVATE_ROOT >> "$backup_dir/.metadata"
+
+# Write out checksums for files that exist
+if [ -f "$gpg_backup" ]
+then
+	echo gpg_sum=$(sha256sum "$gpg_backup"|awk '{print $1}') >> "$backup_dir/.metadata"
+fi
+
+if [ -f "$ssh_backup" ]
+then
+	echo ssh_sum=$(sha256sum "$ssh_backup"|awk '{print $1}') >> "$backup_dir/.metadata"
+fi
+
+if [ -f "$eth_backup" ]
+then
+	echo eth_sum=$(sha256sum "$eth_backup"|awk '{print $1}') >> "$backup_dir/.metadata"
+fi
+
+if [ -f "$openvpn_backup" ]
+then
+	echo openvpn_sum=$(sha256sum "$openvpn_backup"|awk '{print $1}') >> "$backup_dir/.metadata"
+fi
+
+if [ -f "$private_backup" ]
+then
+	echo private_sum=$(sha256sum "$private_backup"|awk '{print $1}') >> "$backup_dir/.metadata"
+fi
+
+echo backupkeys_sum=$(sha256sum "$backup_dir/$(basename $script)"|awk '{print $1}') >> "$backup_dir/.metadata"
+echo restorekeys_sum=$(sha256sum "$backup_dir/$(basename $restore_script)"|awk '{print $1}') >> "$backup_dir/.metadata"
