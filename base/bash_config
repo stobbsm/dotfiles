@@ -17,6 +17,7 @@ DATE_FORMAT="%Y-%m-%d-%H%M%S"
 
 # Set the passcommand for borg to cat a file, if it exists
 BORG_PASSFILE="$HOME/.borg_pass"
+BORG_DIRECTORIES="$HOME /storage/Work"
 
 # Set how long borg should keep backups
 declare -A BORG_KEEP=(

@@ -119,7 +119,7 @@ function backup() {
 	done
 
 	# Do the backup
-	borg create -v -s -p --exclude-from $BORG_EXCLUDE -C lz4 $archive $HOME
+	borg create -v -s -p --exclude-from $BORG_EXCLUDE -C lz4 $archive $BORG_DIRECTORIES
 
 	# Cleanup old backups
 	borg prune $prune_opts
