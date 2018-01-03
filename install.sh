@@ -4,7 +4,7 @@ if [ -f functions.sh ]
 then
 	. functions.sh
 else
-	echo "Error: File not found functions.sh"
+	echo -e "\e[1;41;97mError:\e[0;31m File not found functions.sh\e[0m"
 	exit 2
 fi
 
@@ -12,12 +12,13 @@ if [ -f errors.sh ]
 then
 	. errors.sh
 else
-	echo "File not found errors.sh" 2
+	echo -e "\e[1;41;97mError:\e[0;31m File not found errors.sh"
+	exit 2
 fi
 
 if [ ! -z $1 ]
 then
-	echo "Using $1 as pretend \$HOME"
+	echo -e $(yellow Using $1 as pretend \$HOME)
 	HOME=$1
 	if [ ! -d $HOME ]
 	then
@@ -25,6 +26,9 @@ then
 		debug "Created $HOME"
 	fi
 fi
+
+# Include the fonts.conf file, if it exists. No failure if not found.
+[[ -f fonts.conf ]] && . fonts.conf
 
 base_dir="$(pwd)/base"
 host_dir="$(pwd)/hostfiles/$(hostname)"
@@ -81,7 +85,7 @@ done
 sed_cmd="sed -i $sed_options"
 debug $sed_cmd
 
-echo -e "Installing dotfiles..."
+echo -e $(green Installing dotfiles...)
 for file in $file_list
 do
 	link=${file_map[$file]}
@@ -99,18 +103,18 @@ do
 		if [ ! -z "${generate_map[$file]}" ]
 		then
 			touch $tmp_dir/$file
-			echo -e "Generating $file"
+			echo -e $(yellow Generating $file)
 			cat $src >> $tmp_dir/$file
 			for cfile in ${generate_map[$file]}
 			do
 				if [ -f $base_dir/$cfile ]
 				then
-					echo -e "Found: $cfile"
+					echo -e $(green Found:) $(normal $cfile)
 					cat $base_dir/$cfile >> $tmp_dir/$file
 					echo "" >> $tmp_dir/$file
 				else
 
-					echo -e "Can't find $cfile to add to $file, skipping"
+					echo -e $(red Can\'t find $cfile to add to $file, skipping)
 				fi
 			done
 			src=$tmp_dir/$file
@@ -141,7 +145,7 @@ do
 				debug "No precmd for $src"
 			fi
 
-			echo -e "Installing $link"				
+			echo -e $(green Installing $link)
 			install -D $src $link
 
 			# Run post commands if they exist
@@ -155,13 +159,15 @@ do
 			fi
 		fi
 	else
-		echo -e "Source file doesn't exist: $src"
+		echo -e $(red Source file doesn\'t exist:) $(normal $src)
 	fi
 done
 
-echo -e "Modified $changed_files files"
+echo -e $(yellow Modified) $(green $changed_files) $(yellow files)
 
-echo -e "Checking for vim Plugged plugin manager..."
+[[ -f extra/tmux-256color.ti ]] && tic extra/tmux-256color.ti
+
+echo -e $(yellow Checking for vim Plugged plugin manager...)
 
 plugged_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
 vim_plug_path="$HOME/.vim/autoload/plug.vim"
@@ -169,21 +175,48 @@ nvim_plug_path="$HOME/.local/share/nvim/site/autoload/plug.vim"
 
 if [ ! -f $vim_plug_path ]
 then
-	echo -e "Installing for vim..."
+	echo -e $(yellow Installing for vim...)
 	curl -fLo $vim_plug_path --create-dirs $plugged_url
 else
-	echo -e "Installed for vim"
+	echo -e $(green Installed for vim)
 fi
 
 if [ ! -f $nvim_plug_path ]
 then
-	echo -e "Installing for nvim..."
+	echo -e $(yellow Installing for nvim...)
 	curl -fLo $nvim_plug_path --create-dirs $plugged_url
 else
-	echo -e "Installed for nvim"
+	echo -e $(green Installed for nvim)
 fi
 
-echo -e "Cleaning up..."
+if [ ! -z "$FONTDIR" ]
+then
+	INSTALLING_FONTS=1
+	echo -e $(yellow Installing configured fonts)
+	[[ -d $FONTDIR ]] || mkdir -p $FONTDIR
+	for font in ${FONTS[@]}
+	do
+		src=$font
+		filename=$(echo $font | awk -F/ '{print $NF}')
+		tgt="$FONTDIR/$filename"
+		echo -e $(yellow Fetching $filename)$(reset)
+
+		curl -o $tgt $font
+
+		echo -e $(green $filename installed)
+	done
+else
+	echo -e $(red No FONTDIR set, not installing fonts)
+fi
+
+
+if [ ! -z $INSTALLING_FONTS ]
+then
+	echo -e $(green Updating font cache)
+	fc-cache
+fi
+
+echo -e $(green Cleaning up...)
 rm -rf $tmp_dir
 debug "Removed $tmp_dir"
-echo -e "If your .bashrc was updated, run source ~/.bashrc to enable the new one."
+echo -e $(normal If your .bashrc was updated, run source $HOME/.bashrc to enable the new one)

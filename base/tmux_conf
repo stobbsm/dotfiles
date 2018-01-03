@@ -3,6 +3,9 @@ set -g prefix C-a
 unbind C-b
 bind C-a send-prefix
 
+# Reduce escape time for nvim
+set-option -sg escape-time 10
+
 # Force 256 colour mode
 set -g default-terminal "tmux-256color"
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 function error () {
-	echo "Error occured: $1"
+	echo -e "\e[1;41;97mError occured:\e[0m$1"
 	exit $2
 }
 
@@ -34,6 +34,32 @@ function hash_compare () {
 function debug() {
 	if [ ! -z "$DEBUG" ]
 	then
-		echo "[Debug message: $@]" >&2
+		echo -e $(yellow [Debug message: $(normal $@)$(yellow ])) >&2
 	fi
+}
+
+# functions for coloured text
+function reset() {
+	local txt="$@"
+	echo "\e[0m${txt}"
+}
+
+function normal() {
+	local txt="$@"
+	reset ${txt}
+}
+
+function red() {
+	local txt="$@"
+	echo "\e[31m${txt}$(reset)"
+}
+
+function green() {
+	local txt="$@"
+	echo "\e[32m${txt}$(reset)"
+}
+
+function yellow() {
+	local txt="$@"
+	echo "\e[33m${txt}$(reset)"
 }
