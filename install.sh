@@ -189,19 +189,42 @@ else
 	echo -e $(green Installed for nvim)
 fi
 
+[[ ! -z $FONTDIR ]] && echo -e $(green FONTDIR is $FONTDIR) || echo -e $(red FONTDIR is not set)
+
 if [ ! -z "$FONTDIR" ]
 then
 	INSTALLING_FONTS=1
 	echo -e $(yellow Installing configured fonts)
-	[[ -d $FONTDIR ]] || mkdir -p $FONTDIR
-	for font in ${FONTS[@]}
+	[[ -d $FONTDIR ]] || mkdir -p $FONTDIR && echo -e $(green $FONTDIR already exists)
+	for fontmap in "${!FONTS[@]}"
 	do
-		src=$font
-		filename=$(echo $font | awk -F/ '{print $NF}')
-		tgt="$FONTDIR/$filename"
-		echo -e $(yellow Fetching $filename)$(reset)
-
-		curl -o $tgt $font
+		get_type="$(echo $fontmap|awk -F, '{print $1}')"
+		font_name="$(echo $fontmap|awk -F, '{print $2}')"
+		put_dir="$FONTDIR/$font_name"
+		echo -e $(yellow Getting $font_name with $get_type)
+		case $get_type in
+			git)
+				url="$(echo ${FONTS[$fontmap]}|awk -F\# '{print $1}')"
+				branch="$(echo ${FONTS[$fontmap]}|awk -F\# '{print $2}')"
+				if [ -z "$branch" ]
+				then
+					branch=master
+				fi
+				if [ -d $put_dir ]
+				then
+					echo -e $(yellow $put_dir exists. Attempting to pull latest)
+					mdir=$(pwd)
+					cd $put_dir
+					git pull
+					cd $mdir
+				else
+					git clone --branch $branch --depth 1 "$url" $put_dir
+				fi
+				;;
+			*)
+				error "Undefined get_type: $get_type" 3
+				;;
+		esac
 
 		echo -e $(green $filename installed)
 	done
