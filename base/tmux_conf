@@ -18,3 +18,5 @@ unbind '"'
 unbind %
 bind e split-window -h
 bind o split-window -v
+
+new-session
