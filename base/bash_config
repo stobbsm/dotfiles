@@ -1,15 +1,21 @@
 # Bash config file for common env settings and such
 
 export GOPATH="$HOME/go"
-export SSH_AUTH_SOCK
 export EDITOR={{editor}}
 export VISUAL={{editor}}
 export BORG_REPO="c3po.stobbslocal.net:/storage/Backup/$(hostname).stobbslocal.net"
+export NPM_PACKAGES="$HOME/.npm-packages"
+
+if [ "$XDG_DESKTOP_SESSION" != "KDE" ]
+then
+	export SSH_AUTH_SOCK
+fi
 
 PATHS=( "$HOME/.config/composer/vendor/bin"
 	"$HOME/bin"
 	"$HOME/.local/bin"
 	"$GOPATH/bin"
+	"$NPM_PACKAGES/bin"
 )
 
 BORG_EXCLUDE="$HOME/.borg_exclude"

@@ -10,7 +10,8 @@ if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 
-if [ -n "$DESKTOP_SESSION" ]; then
+if [ -n "$DESKTOP_SESSION" ] && [ "$XDG_SESSION_DESKTOP" != "KDE" ]
+then
 	eval $(gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
 fi
 
