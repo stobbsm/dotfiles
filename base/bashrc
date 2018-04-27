@@ -10,33 +10,43 @@ if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 
-if [ -n "$DESKTOP_SESSION" ] && [ "$XDG_SESSION_DESKTOP" != "KDE" ]
-then
-	eval $(gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
-fi
-
 # Include alias and functions
 [[ -f ~/.bash_functions ]] && . ~/.bash_functions
 [[ -f ~/.bash_alias ]] && . ~/.bash_alias
 [[ -f ~/.bash_colours ]] && . ~/.bash_colours
 [[ -f ~/.bash_config ]] && . ~/.bash_config
 
+if is_gnome
+then
+	eval $(gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
+elif is_plasma
+then
+	GPG_TTY=$(tty)
+	export GPG_TTY
+	gpg-connect-agent updatestartuptty /bye >/dev/null
+	if [ "${gnupg_SSH_AUTH_SOCK_by:-0}" -ne $$ ]
+	then
+		SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+		export SSH_AUTH_SOCK
+ 	fi
+
+fi
+
 updatepath
 export PATH
 
 # Search for powerline, import it if available
 
-check_command "powerline"
-
-if [ "0" -eq "$command_status" ]; then
+if check_command powerline
+then
 	source /usr/lib/python3.6/site-packages/powerline/bindings/bash/powerline.sh
 else
 	# Set a nice prompt when powerline isn't available
 	PROMPT_COMMAND=__prompt_command
 fi
 
-check_command "mpc"
-if [ "0" -eq "$command_status" ]; then
+if check_command mpc
+then
 	export MPD_HOST=$HOME/.config/mpd/socket
 fi
 

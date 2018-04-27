@@ -6,9 +6,13 @@ export VISUAL={{editor}}
 export BORG_REPO="c3po.stobbslocal.net:/storage/Backup/$(hostname).stobbslocal.net"
 export NPM_PACKAGES="$HOME/.npm-packages"
 
-if [ "$XDG_DESKTOP_SESSION" != "KDE" ]
+if [ is_plasma ]
 then
-	export SSH_AUTH_SOCK
+	export GPG_TTY=$(tty)
+	if [ "${gnupg_SSH_AUTH_SOCK_by:-0}" -ne $$ ]
+	then
+		export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+	fi
 fi
 
 PATHS=( "$HOME/.config/composer/vendor/bin"
