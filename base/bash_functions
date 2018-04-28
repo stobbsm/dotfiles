@@ -43,10 +43,39 @@ function updatepath {
 	done
 }
 
+function get_desktop() {
+	if [ -z "$XDG_DESKTOP_SESSION" ] && [ -z "$XDG_SESSION_DESKTOP" ]
+	then
+		echo ""
+		return 1
+	else
+		if [ ! -z "$XDG_DESKTOP_SESSION" ]
+		then
+			echo "$XDG_DESKTOP_SESSION"
+			return 0
+		fi
+
+		if [ ! -z "$XDG_SESSION_DESKTOP" ]
+		then
+			echo "$XDG_SESSION_DESKTOP"
+			return 0
+		fi
+	fi
+}
+
+function is_plasma() {
+	local desktop="$(get_desktop)"
+	[[ "$desktop" = "KDE" ]] && return 0 || return 1
+}
+
+function is_gnome() {
+	local desktop="$(get_desktop)"
+	[[ "$desktop" = "Gnome" ]] && return 0 || return 1
+}
+
 function __prompt_command() {
 	local EXIT="$?"
-	check_command "powerline-go"
-	if [ "0" -eq "$command_status" ]
+	if check_command powerline-go
 	then
 		PS1="$(~/go/bin/powerline-go -error $?)"
 	else
@@ -91,8 +120,7 @@ function __split_pwd() {
 
 function check_command() {
 	local cmd=$1
-	command -v $cmd >/dev/null 2>&1
-	command_status=$?
+	return command $cmd &>/dev/null
 }
 
 function backup() {
