@@ -24,6 +24,9 @@ fi
 updatepath
 export PATH
 
+# Update the gpg-agent tty
+gpg-connect-agent updatestartuptty /bye >/dev/null
+
 # Search for powerline, import it if available
 
 check_command "powerline"
