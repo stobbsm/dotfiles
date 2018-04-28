@@ -75,8 +75,7 @@ function is_gnome() {
 
 function __prompt_command() {
 	local EXIT="$?"
-	check_command "powerline-go"
-	if [ "0" -eq "$command_status" ]
+	if check_command powerline-go
 	then
 		PS1="$(~/go/bin/powerline-go -error $?)"
 	else
