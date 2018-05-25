@@ -51,13 +51,13 @@ function get_desktop() {
 	else
 		if [ ! -z "$XDG_DESKTOP_SESSION" ]
 		then
-			echo "$XDG_DESKTOP_SESSION"
+			echo "$XDG_DESKTOP_SESSION" | tr '[:upper:]' '[:lower:]'
 			return 0
 		fi
 
 		if [ ! -z "$XDG_SESSION_DESKTOP" ]
 		then
-			echo "$XDG_SESSION_DESKTOP"
+			echo "$XDG_SESSION_DESKTOP" | tr '[:upper:]' '[:lower:]'
 			return 0
 		fi
 	fi
@@ -65,12 +65,12 @@ function get_desktop() {
 
 function is_plasma() {
 	local desktop="$(get_desktop)"
-	[[ "$desktop" = "KDE" ]] && return 0 || return 1
+	[[ "$desktop" = "kde" ]] && return 0 || return 1
 }
 
 function is_gnome() {
 	local desktop="$(get_desktop)"
-	[[ "$desktop" = "Gnome" ]] && return 0 || return 1
+	[[ "$desktop" = "gnome" ]] && return 0 || return 1
 }
 
 function __prompt_command() {
